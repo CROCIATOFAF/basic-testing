@@ -1,17 +1,35 @@
-// Uncomment the code below and write your tests
-/* import axios from 'axios';
-import { throttledGetDataFromApi } from './index'; */
+import axios from 'axios';
+import { throttledGetDataFromApi } from './index';
+
+const baseURL = 'https://jsonplaceholder.typicode.com';
+
+jest.mock('lodash', () => ({
+  throttle: jest.fn((func) => func),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.mock('axios');
+
+  axios.create = jest.fn().mockReturnValue({
+    get: jest.fn().mockResolvedValue({ data: 'Responsed!' }),
+  });
+});
 
 describe('throttledGetDataFromApi', () => {
   test('should create instance with provided base url', async () => {
-    // Write your test here
+    await throttledGetDataFromApi('/tests');
+    expect(axios.create).toHaveBeenCalledWith({ baseURL });
   });
 
   test('should perform request to correct provided url', async () => {
-    // Write your test here
+    await throttledGetDataFromApi('/tests');
+    const mockInstance = axios.create();
+    expect(mockInstance.get).toHaveBeenCalledWith('/tests');
   });
 
   test('should return response data', async () => {
-    // Write your test here
+    const result = await throttledGetDataFromApi('/tests');
+    expect(result).toEqual('Responsed!');
   });
 });
